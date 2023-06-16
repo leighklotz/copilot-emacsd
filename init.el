@@ -4,18 +4,32 @@
 (require 'package)
 (require 'cl)
 
-(setq user-init-file (or load-file-name (buffer-file-name)))
-(setq user-emacs-directory (file-name-directory user-init-file))
-(setq package-user-dir (expand-file-name "elpa/" user-emacs-directory))
+;;; [KLOTZ]
+(defvar copilot-load-directory
+  (file-name-directory (or load-file-name (buffer-file-name))))
 
-(setq ;; debug-on-error t
-      no-byte-compile t
-      byte-compile-warnings nil
-      warning-suppress-types '((comp))
-      inhibit-startup-screen t
-      package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("gnu" . "https://elpa.gnu.org/packages/"))
-      custom-file (expand-file-name "custom.el" user-emacs-directory))
+(setq COPILOT-STANDALONE-INIT nil)
+
+(cond ((not COPILOT-STANDALONE-INIT)
+       (push (expand-file-name "elpa/" copilot-load-directory) package-directory-list))
+      (t 
+       (setq user-init-file (or load-file-name (buffer-file-name)))
+       (setq user-emacs-directory (file-name-directory user-init-file))
+       (setq copilot-load-directory user-emacs-directory)
+       (setq package-user-dir (expand-file-name "elpa/" user-emacs-directory))))
+
+(when nil
+  (setq ;; debug-on-error t
+   no-byte-compile t
+   byte-compile-warnings nil
+   warning-suppress-types '((comp))
+   inhibit-startup-screen t))
+
+(when t
+  (setq
+   package-archives '(("melpa" . "https://melpa.org/packages/")
+		      ("gnu" . "https://elpa.gnu.org/packages/"))
+   custom-file (expand-file-name "custom.el" user-emacs-directory)))
 
 
 ;; install dependencies
@@ -85,10 +99,13 @@ cleared, make sure the overlay doesn't come back too soon."
                               comint-mode
                               compilation-mode
                               debugger-mode
+                              dired-mode
                               dired-mode-hook
                               compilation-mode-hook
+			      compilation-mode
                               flutter-mode-hook
-                              minibuffer-mode-hook)
+                              minibuffer-mode-hook
+			      minibuffer-inactive-mode)
   "Modes in which copilot is inconvenient.")
 
 (defvar rk/copilot-manual-mode nil
@@ -109,7 +126,7 @@ cleared, make sure the overlay doesn't come back too soon."
   (or rk/copilot-manual-mode
       (member major-mode rk/no-copilot-modes)
       (and (not rk/copilot-enable-for-org) (eq major-mode 'org-mode))
-      (company--active-p)))
+      (and (fboundp 'company--active-p) (company--active-p))))
 
 (defun rk/copilot-change-activation ()
   "Switch between three activation modes:
@@ -138,7 +155,8 @@ annoying, sometimes be useful, that's why this can be handly."
 
 ;; load the copilot package
 (use-package copilot
-  :load-path (lambda () (expand-file-name "copilot.el" user-emacs-directory))
+  ;; [klotz] was user-emacs-directory
+  :load-path (lambda () (expand-file-name "copilot.el" copilot-load-directory))
 
   :diminish ;; don't show in mode line (we don't wanna get caught cheating, right? ;)
 
@@ -165,12 +183,16 @@ annoying, sometimes be useful, that's why this can be handly."
   (add-to-list 'copilot-enable-predicates #'rk/copilot-enable-predicate)
   (add-to-list 'copilot-disable-predicates #'rk/copilot-disable-predicate))
 
+;; Note company is optional but given we use some company commands above
+;; we'll require it here. If you don't use it, you can remove all company
+;; related code from this file, copilot does not need it.
+(when t
+  (eval-after-load 'copilot
+  '(progn
+     (require 'company))))
+
 (eval-after-load 'copilot
   '(progn
-     ;; Note company is optional but given we use some company commands above
-     ;; we'll require it here. If you don't use it, you can remove all company
-     ;; related code from this file, copilot does not need it.
-     (require 'company)
      (global-copilot-mode)))
 
 (copilot-login)
