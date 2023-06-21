@@ -83,7 +83,7 @@ cleared, make sure the overlay doesn't come back too soon."
              (setq copilot-disable-predicates pre-copilot-disable-predicates)))))
     (error handler)))
 
-(defun rk/copilot-complete-if-active (next-func n)
+(defun rk/copilot-complete-if-active (next-func n &rest ignore)
   (let ((completed (when copilot-mode (copilot-accept-completion))))
     (unless completed (funcall next-func n))))
 
@@ -162,14 +162,15 @@ annoying, sometimes be useful, that's why this can be handly."
 
   :config
   ;; keybindings that are active when copilot shows completions
-  (define-key copilot-mode-map (kbd "M-C-<next>") #'copilot-next-completion)
-  (define-key copilot-mode-map (kbd "M-C-<prior>") #'copilot-previous-completion)
+  (define-key copilot-mode-map (kbd "M-]") #'copilot-next-completion)
+  (define-key copilot-mode-map (kbd "M-[") #'copilot-previous-completion)
   (define-key copilot-mode-map (kbd "M-C-<right>") #'copilot-accept-completion-by-word)
   (define-key copilot-mode-map (kbd "M-C-<down>") #'copilot-accept-completion-by-line)
 
   ;; global keybindings
-  (define-key global-map (kbd "M-C-<return>") #'rk/copilot-complete-or-accept)
+  (define-key global-map (kbd "C-<return>") #'rk/copilot-complete-or-accept)
   (define-key global-map (kbd "M-C-<escape>") #'rk/copilot-change-activation)
+  (define-key global-map (kbd "C-<tab>") #'rk/copilot-complete-or-accept)
 
   ;; Do copilot-quit when pressing C-g
   (advice-add 'keyboard-quit :before #'rk/copilot-quit)
@@ -178,18 +179,20 @@ annoying, sometimes be useful, that's why this can be handly."
   ;; shown. This means we leave the normal functionality intact.
   (advice-add 'right-char :around #'rk/copilot-complete-if-active)
   (advice-add 'indent-for-tab-command :around #'rk/copilot-complete-if-active)
+  (advice-add 'c-indent-line-or-region :around #'rk/copilot-complete-if-active)
 
   ;; deactivate copilot for certain modes
   (add-to-list 'copilot-enable-predicates #'rk/copilot-enable-predicate)
   (add-to-list 'copilot-disable-predicates #'rk/copilot-disable-predicate))
 
-;; Note company is optional but given we use some company commands above
-;; we'll require it here. If you don't use it, you can remove all company
-;; related code from this file, copilot does not need it.
-(when t
-  (eval-after-load 'copilot
+(eval-after-load 'copilot
   '(progn
-     (require 'company))))
+     ;; Note company is optional but given we use some company commands above
+     ;; we'll require it here. If you don't use it, you can remove all company
+     ;; related code from this file, copilot does not need it.
+     (when false
+       (require 'company)
+       (global-company-mode))))
 
 (eval-after-load 'copilot
   '(progn
