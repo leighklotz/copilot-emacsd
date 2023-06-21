@@ -179,7 +179,10 @@ annoying, sometimes be useful, that's why this can be handly."
   ;; shown. This means we leave the normal functionality intact.
   (advice-add 'right-char :around #'rk/copilot-complete-if-active)
   (advice-add 'indent-for-tab-command :around #'rk/copilot-complete-if-active)
+  ;; another type of tab
   (advice-add 'c-indent-line-or-region :around #'rk/copilot-complete-if-active)
+  ;; ctrl-e
+  (advice-add 'move-end-of-line :around #'rk/copilot-complete-if-active)
 
   ;; deactivate copilot for certain modes
   (add-to-list 'copilot-enable-predicates #'rk/copilot-enable-predicate)
