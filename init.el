@@ -190,7 +190,7 @@ annoying, sometimes be useful, that's why this can be handly."
      ;; Note company is optional but given we use some company commands above
      ;; we'll require it here. If you don't use it, you can remove all company
      ;; related code from this file, copilot does not need it.
-     (when false
+     (when nil
        (require 'company)
        (global-company-mode))))
 
