@@ -203,4 +203,27 @@ annoying, sometimes be useful, that's why this can be handly."
   '(progn
      (global-copilot-mode)))
 
+
+;; The following code is for debugging why it doesn't send requests or what errors it gets.
+(defvar MY-COPILOT-DEBUG nil)
+(defvar MY-COPILOT-REQUESTS nil)
+(defvar MY-COPILOT-BACKTRACES nil)
+
+(defun my-copilot-debug-capture-requests (callback)
+  (when MY-COPILOT-DEBUG
+    (push (copilot--generate-doc) MY-COPILOT-REQUESTS)
+    (push (backtrace-to-string (backtrace-get-frames 'backtrace)) MY-COPILOT-BACKTRACES))
+  nil)
+
+(defun my-copilot-debug ()
+  (interactive)
+  (setq MY-COPILOT-DEBUG (not MY-COPILOT-DEBUG))
+  (cond (MY-COPILOT-DEBUG
+	 (setq MY-COPILOT-REQUESTS nil MY-COPILOT-BACKTRACES nil)
+	 (advice-add 'copilot--get-completion :before #'my-copilot-debug-capture-requests)
+	 (message "copilot debug enabled"))
+	(t 
+	 (advice-remove 'copilot--get-completion #'my-copilot-debug-capture-requests)
+	 (message "copilot debug disabled"))))
+
 (copilot-login)
