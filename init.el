@@ -183,6 +183,8 @@ annoying, sometimes be useful, that's why this can be handly."
   (advice-add 'c-indent-line-or-region :around #'rk/copilot-complete-if-active)
   ;; ctrl-e
   (advice-add 'move-end-of-line :around #'rk/copilot-complete-if-active)
+  ;; enter
+  (advice-add 'newline :around #'rk/copilot-complete-if-active)
 
   ;; deactivate copilot for certain modes
   (add-to-list 'copilot-enable-predicates #'rk/copilot-enable-predicate)
