@@ -175,16 +175,20 @@ annoying, sometimes be useful, that's why this can be handly."
   ;; Do copilot-quit when pressing C-g
   (advice-add 'keyboard-quit :before #'rk/copilot-quit)
 
-  ;; complete by pressing right or tab but only when copilot completions are
-  ;; shown. This means we leave the normal functionality intact.
-  (advice-add 'right-char :around #'rk/copilot-complete-if-active)
-  (advice-add 'indent-for-tab-command :around #'rk/copilot-complete-if-active)
-  ;; another type of tab
-  (advice-add 'c-indent-line-or-region :around #'rk/copilot-complete-if-active)
-  ;; ctrl-e
-  (advice-add 'move-end-of-line :around #'rk/copilot-complete-if-active)
-  ;; enter
-  (advice-add 'newline :around #'rk/copilot-complete-if-active)
+  (when t
+    ;; complete by pressing right or tab but only when copilot completions are
+    ;; shown. This means we leave the normal functionality intact.
+    (advice-add 'right-char :around #'rk/copilot-complete-if-active)
+    (advice-add 'indent-for-tab-command :around #'rk/copilot-complete-if-active)
+    ;; another type of tab
+    (advice-add 'c-indent-line-or-region :around #'rk/copilot-complete-if-active)
+    ;; ctrl-e
+    (advice-add 'move-end-of-line :around #'rk/copilot-complete-if-active)
+    ;; enter
+    ;; this fails
+    ;; (advice-add 'newline :around #'rk/copilot-complete-if-active)
+    )
+
 
   ;; deactivate copilot for certain modes
   (add-to-list 'copilot-enable-predicates #'rk/copilot-enable-predicate)
