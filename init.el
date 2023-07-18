@@ -230,4 +230,6 @@ annoying, sometimes be useful, that's why this can be handly."
 	 (advice-remove 'copilot--get-completion #'my-copilot-debug-capture-requests)
 	 (message "copilot debug disabled"))))
 
-(copilot-login)
+;; this gets an error if you restart and are already logged in
+;; and causes failures in init, desktop restore, etc.
+; (copilot-login)
